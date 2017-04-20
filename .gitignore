@@ -1,2 +1,6 @@
 
 credentials.py
+
+log.db
+
+__pycache__/
