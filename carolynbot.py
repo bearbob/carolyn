@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 import sqlite3
+import dice
 import logging
 import random
 import credentials
@@ -152,8 +153,8 @@ def handleother(update, typ):
 
 
 def picture(bot, update):
-    type = 'Picture'
-    handleother(update, type)
+    typus = 'Picture'
+    handleother(update, typus)
 
 
 def audio(bot, update):
@@ -215,7 +216,7 @@ def stats(bot, update, args):
                         GROUP BY u2) p2
                     WHERE c2 > c1
                 """.format(update.message.chat_id, update.message.from_user.id)
-        answer = "Let's see... your all time stats:\n"
+        reply = "Let's see... your all time stats:\n"
     else:
         # simple command, return the short overview for this user in this chat
         sql = """SELECT COUNT(*), type FROM Messages
@@ -240,9 +241,8 @@ def stats(bot, update, args):
                 GROUP BY u2) p2
             WHERE c2 > c1
         """.format(update.message.chat_id, update.message.from_user.id)
-        answer = "Let's see... your monthly stats:\n"
+        reply = "Let's see... your monthly stats:\n"
 
-    global conn
     conn = sqlite3.connect(db)
     c = conn.cursor()
     data = c.execute(sql).fetchall()
@@ -281,11 +281,11 @@ def stats(bot, update, args):
     none = True
     for row in data:
         none = False
-        answer += random.choice(pool).format(row[0], row[1])
+        reply += random.choice(pool).format(row[0], row[1])
     if none:
-        answer += "Nope, nothing here yet. Sorry."
-    answer += "That puts you on rank {0} in this group.".format(ranking[0]+1)
-    bot.sendMessage(chat_id=update.message.chat_id, text=answer)
+        reply += "Nope, nothing here yet. Sorry."
+        reply += "That puts you on rank {0} in this group.".format(ranking[0]+1)
+    bot.sendMessage(chat_id=update.message.chat_id, text=reply)
     return
 
 
@@ -304,11 +304,11 @@ def status(bot, update):
     bot.sendMessage(chat_id=update.message.chat_id, text=random.choice(answer.getStatus()))
 
 
-def dice_twenty(bot, update, args):
-    answer = [
+def dice_twenty(bot, update):
+    reply = [
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
     ]
-    bot.sendMessage(chat_id=update.message.chat_id, text=random.choice(answer))
+    bot.sendMessage(chat_id=update.message.chat_id, text=random.choice(reply))
 
 
 def helpy(bot, update):
@@ -324,19 +324,20 @@ def sex(bot, update):
 
 
 def list_commands(bot, update):
-    answer = """
+    reply = """
     Oh there is so much you can do to command me! We can roll some /dice, we can look at /stats, /status, /pic...
 Besides that, you never know, just try a few commands. Who knows what might be available in the future.
 
     Your Carolyn,
     xoxoxoxo
     """
-    bot.sendMessage(chat_id=update.message.chat_id, text=answer)
+    bot.sendMessage(chat_id=update.message.chat_id, text=reply)
 
 
 def main():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-    updater = Updater(credentials.getToken())
+    # Create the Updater and pass it your bot's token.
+    updater = Updater(credentials.get_token())
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler('stats', stats, pass_args=True))
@@ -344,8 +345,9 @@ def main():
     dispatcher.add_handler(CommandHandler('sex', sex))
     dispatcher.add_handler(CommandHandler('naughty', sex))
     dispatcher.add_handler(CommandHandler('nsfw', sex))
-    dispatcher.add_handler(CommandHandler('d20', dice_twenty, pass_args=True))
-    dispatcher.add_handler(CommandHandler('dice', dice_twenty, pass_args=True))
+    dispatcher.add_handler(CommandHandler('d20', dice_twenty))
+    dispatcher.add_handler(CommandHandler('dice', dice.roll_dice))
+    updater.dispatcher.add_handler(CallbackQueryHandler(dice.button))
     dispatcher.add_handler(CommandHandler('status', status))
     dispatcher.add_handler(CommandHandler('help', helpy))
     dispatcher.add_handler(CommandHandler('left', move))
@@ -369,9 +371,12 @@ def main():
     dispatcher.add_handler(MessageHandler(Filters.video, video))
     dispatcher.add_handler(MessageHandler(Filters.voice, voice))
 
+    # Start the Bot
     print("Starting the bot...")
     updater.start_polling()
     # to stop the bot if necessary: idle
+    # Run the bot until the user presses Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT
     updater.idle()
 
 
