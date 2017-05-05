@@ -1,5 +1,5 @@
 import sqlite3
-from chatterbot.trainers import ListTrainer
+from chatterbot.trainers import ListTrainer, ChatterBotCorpusTrainer
 import constants
 
 
@@ -37,7 +37,7 @@ def create_database(db):
 
 def train_chatbot(db, chatbot):
     # Train based on the german corpus
-    chatbot.set_trainer('chatterbot.trainers.ChatterBotCorpusTrainer')
+    chatbot.set_trainer(ChatterBotCorpusTrainer)
     chatbot.train("chatterbot.corpus.german")
     # train with database
     chatbot.set_trainer(ListTrainer)
@@ -46,4 +46,7 @@ def train_chatbot(db, chatbot):
     c = conn.cursor()
     c.execute(selectsql.format(constants.text))
     data = c.fetchall()
-    chatbot.train(data)
+    trainset = []
+    for row in data:
+        trainset.append(row[0])
+    chatbot.train(trainset)

@@ -1,8 +1,6 @@
 import sqlite3
 import random
-import answer
 import constants
-from chatterbot import ChatBot
 
 
 def checkuser(user):
@@ -44,7 +42,7 @@ def wordprocess(text, userId):
     return hashtags
 
 
-def text(bot, update):
+def text(bot, update, chatbot):
     conn = sqlite3.connect(constants.db)
     typus = constants.text
     content = update.message.text
@@ -85,24 +83,11 @@ def text(bot, update):
 
     hay = content.lower()
     if "carolyn" in hay or "caro" in hay:
-        response = chatbot.get_response(content)
-        bot.sendMessage(chat_id=update.message.chat_id, text=response.text)
-        if "?" in content:
-            ans = random.choice(answer.getAnswer())
-        else:
-            pool = [
-                "Yes, master?",
-                "At your service.",
-                "How can I help?",
-                "Is there something you wish to know?",
-                "Speak.",
-                "Yes?",
-                "Why are you disturbing me?",
-                "Leave me alone.",
-                "What bothers you?"
-                    ]
-            ans = random.choice(pool)
-        # bot.sendMessage(chat_id=update.message.chat_id, text=ans)
+        statement = chatbot.get_response(content)
+        response = statement.text.lower()
+        response = response.replace("carolyn", "")
+        response = response.replace("caro", "")
+        bot.sendMessage(chat_id=update.message.chat_id, text=response)
 
 
 def handleother(update, typ):

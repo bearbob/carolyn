@@ -4,3 +4,5 @@ credentials.py
 log.db
 
 __pycache__/
+
+*.db

@@ -16,7 +16,11 @@ from chatterbot import ChatBot
 
 
 conversation = []
-chatbot = ChatBot('Carolyn')
+chatbot = ChatBot('Carolyn', silence_performance_warning=True)
+
+
+def text(bot, update):
+    messages.text(bot, update, chatbot)
 
 
 def echo(bot, update, args):
@@ -85,7 +89,7 @@ def main():
 
     dispatcher.add_handler(MessageHandler(Filters.command, status))
 
-    dispatcher.add_handler(MessageHandler(Filters.text, messages.text))
+    dispatcher.add_handler(MessageHandler(Filters.text, text))
     dispatcher.add_handler(MessageHandler(Filters.photo, messages.picture))
     dispatcher.add_handler(MessageHandler(Filters.audio, messages.audio))
     dispatcher.add_handler(MessageHandler(Filters.document, messages.document))
