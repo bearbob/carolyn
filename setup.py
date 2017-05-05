@@ -1,4 +1,7 @@
 import sqlite3
+from chatterbot.trainers import ListTrainer
+import constants
+
 
 def create_database(db):
     conn = sqlite3.connect(db)
@@ -30,3 +33,17 @@ def create_database(db):
                     `word`	TEXT
                 );''')
     print("Created databases.")
+
+
+def train_chatbot(db, chatbot):
+    # Train based on the german corpus
+    chatbot.set_trainer('chatterbot.trainers.ChatterBotCorpusTrainer')
+    chatbot.train("chatterbot.corpus.german")
+    # train with database
+    chatbot.set_trainer(ListTrainer)
+    selectsql = "SELECT content FROM Messages WHERE type = '{0}'"
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute(selectsql.format(constants.text))
+    data = c.fetchall()
+    chatbot.train(data)

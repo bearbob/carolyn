@@ -3,13 +3,17 @@ from random import randint
 
 
 def roll_dice(bot, update):
-    keyboard = [[InlineKeyboardButton("D6", callback_data='6'),
-                 InlineKeyboardButton("D10", callback_data='10')],
-
-                [InlineKeyboardButton("D20", callback_data='20')]]
+    keyboard = [[InlineKeyboardButton(text="D6", callback_data='6'),
+                 InlineKeyboardButton(text="D10", callback_data='10')],
+                [InlineKeyboardButton(text="D20", callback_data='20'),
+                 InlineKeyboardButton(text="D100", callback_data='100')]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('Please choose:', reply_markup=reply_markup)
+
+
+def dice_twenty(bot, update):
+    bot.sendMessage(chat_id=update.message.chat_id, text=randint(1, 20))
 
 
 def button(bot, update):
