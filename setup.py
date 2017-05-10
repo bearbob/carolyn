@@ -49,4 +49,6 @@ def train_chatbot(db, chatbot):
     trainset = []
     for row in data:
         trainset.append(row[0])
-    chatbot.train(trainset)
+        if len(trainset) > 2:
+            del(trainset[0])
+            chatbot.train(trainset)

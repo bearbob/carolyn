@@ -14,13 +14,16 @@ import constants
 from chatterbot import ChatBot
 
 
-
 conversation = []
-chatbot = ChatBot('Carolyn', silence_performance_warning=True)
+chatbot = ChatBot('Carolyn',
+                  #storage_adapter='chatterbot.storage.MongoDatabaseAdapter',
+                  logic_adapters=['chatterbot.logic.BestMatch'],
+                  silence_performance_warning=True,
+                  database='chatterbot-database')
 
 
 def text(bot, update):
-    messages.text(bot, update, chatbot)
+    messages.text(bot, update, chatbot, conversation)
 
 
 def echo(bot, update, args):
@@ -46,8 +49,8 @@ def move(bot, update):
     bot.sendMessage(chat_id=update.message.chat_id, text=random.choice(answer.getMove()))
 
 
-def sex(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id, text=answer.getSex())
+def snarky(bot, update):
+    bot.sendMessage(chat_id=update.message.chat_id, text=answer.getSnarky())
 
 
 def list_commands(bot, update):
@@ -68,10 +71,8 @@ def main():
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler('stats', messages.stats, pass_args=True))
-    dispatcher.add_handler(CommandHandler('blowjob', sex))
-    dispatcher.add_handler(CommandHandler('sex', sex))
-    dispatcher.add_handler(CommandHandler('naughty', sex))
-    dispatcher.add_handler(CommandHandler('nsfw', sex))
+    dispatcher.add_handler(CommandHandler('naughty', snarky))
+    dispatcher.add_handler(CommandHandler('nsfw', snarky))
     dispatcher.add_handler(CommandHandler('d20', dice.dice_twenty))
     dispatcher.add_handler(CommandHandler('dice', dice.roll_dice))
     dispatcher.add_handler(CallbackQueryHandler(dice.button))

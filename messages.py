@@ -42,7 +42,7 @@ def wordprocess(text, userId):
     return hashtags
 
 
-def text(bot, update, chatbot):
+def text(bot, update, chatbot, conversation):
     conn = sqlite3.connect(constants.db)
     typus = constants.text
     content = update.message.text
@@ -55,8 +55,11 @@ def text(bot, update, chatbot):
     checkuser(update.message.from_user)
     time = update.message.date
     print(typus, ":", update.message)
+    replyToBot = False
     try:
         ans = update.message.reply_to_message.from_user.id
+        if ans == bot.id:
+            replyToBot = True
         checkuser(update.message.reply_to_message.from_user)
     except AttributeError:
         ans = 0
@@ -82,8 +85,15 @@ def text(bot, update, chatbot):
     conn.close()
 
     hay = content.lower()
-    if "carolyn" in hay or "caro" in hay:
-        statement = chatbot.get_response(content)
+    conversation.append(hay)
+    if len(conversation) > 2:
+        del (conversation[0])
+        chatbot.train(conversation)
+    # answer if the message contains the name, is a private chat or was a direct reply to the bot
+    if "carolyn" in hay or "caro" in hay or chatId > 0 or replyToBot:
+        hay = hay.replace("carolyn", "")
+        hay = hay.replace("caro", "")
+        statement = chatbot.get_response(hay)
         response = statement.text.lower()
         response = response.replace("carolyn", "")
         response = response.replace("caro", "")

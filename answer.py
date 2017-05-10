@@ -1,7 +1,7 @@
 import random
 
 
-def getSex():
+def getSnarky():
     answer = [
         "If you think pubic hair on a woman is unnatural or weird, you aren’t mature enough to be touching vaginas.",
         "I don’t define myself as straight, because if I meet a girl and I’m attracted to her, I’m going to have sex with her. I just have yet to meet the girl. I don’t like labels, I like freedom.",
