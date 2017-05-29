@@ -6,3 +6,5 @@ log.db
 __pycache__/
 
 *.db
+
+chatterbot-database

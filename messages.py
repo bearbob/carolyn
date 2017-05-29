@@ -267,11 +267,13 @@ def stats(bot, update, args):
     else:
         pool.append("You have send a total of {0} {1}s.\n")
     none = True
+
     for row in data:
         none = False
         reply += random.choice(pool).format(row[0], row[1])
+
     if none:
         reply += "Nope, nothing here yet. Sorry."
-        reply += "That puts you on rank {0} in this group.".format(ranking[0]+1)
+    reply += "That puts you on rank {0} in this group.".format(ranking[0]+1)
     bot.sendMessage(chat_id=update.message.chat_id, text=reply)
     return

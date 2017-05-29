@@ -10,6 +10,8 @@ import credentials
 import answer
 import setup
 import messages
+import inlinekeyboard
+import eventhandler
 import constants
 from chatterbot import ChatBot
 
@@ -71,11 +73,12 @@ def main():
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler('stats', messages.stats, pass_args=True))
+    dispatcher.add_handler(CommandHandler('event', eventhandler.add, pass_args=True))
     dispatcher.add_handler(CommandHandler('naughty', snarky))
     dispatcher.add_handler(CommandHandler('nsfw', snarky))
     dispatcher.add_handler(CommandHandler('d20', dice.dice_twenty))
     dispatcher.add_handler(CommandHandler('dice', dice.roll_dice))
-    dispatcher.add_handler(CallbackQueryHandler(dice.button))
+    dispatcher.add_handler(CallbackQueryHandler(inlinekeyboard.button))
     dispatcher.add_handler(CommandHandler('status', status))
     dispatcher.add_handler(CommandHandler('help', helpy))
     dispatcher.add_handler(CommandHandler('left', move))
@@ -110,5 +113,5 @@ def main():
 
 if __name__ == "__main__":
     setup.create_database(constants.db)
-    setup.train_chatbot(constants.db, chatbot)
+    # setup.train_chatbot(constants.db, chatbot)
     main()
