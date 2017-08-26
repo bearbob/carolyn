@@ -85,7 +85,7 @@ def text(bot, update, chatbot, conversation):
     conn.close()
 
     # check if the user send a shortcode
-    code = constants.is_shortcode(content)
+    code = constants.get_shortcode(content)
     if code is not None:
         user_name = update.message.from_user.first_name
         response = code.format(user_name)
