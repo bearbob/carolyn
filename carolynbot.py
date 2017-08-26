@@ -15,7 +15,7 @@ import eventhandler
 import constants
 from chatterbot import ChatBot
 
-sVersion = "1.10b"
+sVersion = "1.10c"
 
 conversation = []
 chatbot = ChatBot('Carolyn',
@@ -58,8 +58,15 @@ def snarky(bot, update):
 
 def list_commands(bot, update):
     reply = """
-    Oh there is so much you can do to command me! We can roll some /dice, we can look at /stats, /status, /pic...
-Besides that, you never know, just try a few commands. Who knows what might be available in the future.
+    Hey honey. Here are some commands you may be willing to give a shot:
+    /stats [total]
+    /naughty
+    /nsfw
+    /d20
+    /dice
+    /status
+    /help
+    /left
 
     Your Carolyn,
     xoxoxoxo

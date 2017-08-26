@@ -4,13 +4,13 @@ import constants
 
 
 def checkuser(user):
-    id = user.id
+    uid = user.id
     first = user.first_name
     last = user.last_name
     name = user.username
     sql = "INSERT INTO Users(userId, userName, firstName, lastName) SELECT {0}, '{1}', '{2}', '{3}'  WHERE NOT EXISTS("
     sql += "SELECT 1 FROM Users WHERE userId = {0})"
-    query = sql.format(id, name, first, last)
+    query = sql.format(uid, name, first, last)
     try:
         conn = sqlite3.connect(constants.db)
         c = conn.cursor()
@@ -21,7 +21,7 @@ def checkuser(user):
         print(e, " in ", query)
 
 
-def wordprocess(text, userId):
+def wordprocess(text, user_id):
     hashtags = 0
     if len(text) < 1:
         return hashtags
@@ -35,7 +35,7 @@ def wordprocess(text, userId):
             nw = nw.replace(char, '')
         conn = sqlite3.connect(constants.db)
         c = conn.cursor()
-        c.execute('INSERT INTO Words (userId, word) VALUES (?, ?)', (userId, nw.lower()))
+        c.execute('INSERT INTO Words (userId, word) VALUES (?, ?)', (user_id, nw.lower()))
         c.close()
         conn.close()
 
@@ -46,20 +46,20 @@ def text(bot, update, chatbot, conversation):
     conn = sqlite3.connect(constants.db)
     typus = constants.text
     content = update.message.text
-    chatId = update.message.chat_id
+    chat_id = update.message.chat_id
     try:
-        chatName = update.message.chat.title
+        chat_name = update.message.chat.title
     except AttributeError:
-        chatName = ''
-    userId = update.message.from_user.id
+        chat_name = ''
+    user_id = update.message.from_user.id
     checkuser(update.message.from_user)
     time = update.message.date
     print(typus, ":", update.message)
-    replyToBot = False
+    reply_to_bot = False
     try:
         ans = update.message.reply_to_message.from_user.id
         if ans == bot.id:
-            replyToBot = True
+            reply_to_bot = True
         checkuser(update.message.reply_to_message.from_user)
     except AttributeError:
         ans = 0
@@ -70,13 +70,13 @@ def text(bot, update, chatbot, conversation):
         forward = 0
 
     # process the words and count the hashtags
-    hashtags = wordprocess(content, userId)
+    hashtags = wordprocess(content, user_id)
 
     sql = "INSERT INTO Messages(chatId, chatTitle, userId, unixtime, type, answerTo, forwardFrom, hashtags, content) "
     sql += "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
     try:
         c = conn.cursor()
-        c.execute(sql, (chatId, chatName, userId, time, typus, ans, forward, hashtags, content))
+        c.execute(sql, (chat_id, chat_name, user_id, time, typus, ans, forward, hashtags, content))
         c.close()
     except sqlite3.Error as e:
         print(e, " in ", sql)
@@ -84,13 +84,21 @@ def text(bot, update, chatbot, conversation):
     conn.commit()
     conn.close()
 
+    # check if the user send a shortcode
+    code = constants.is_shortcode(content)
+    if code is not None:
+        user_name = update.message.from_user.first_name
+        response = code.format(user_name)
+        bot.sendMessage(chat_id=update.message.chat_id, text=response)
+
+    # Conversation reply
     hay = content.lower()
     conversation.append(hay)
     if len(conversation) > 2:
         del (conversation[0])
         chatbot.train(conversation)
     # answer if the message contains the name, is a private chat or was a direct reply to the bot
-    if "carolyn" in hay or "caro" in hay or chatId > 0 or replyToBot:
+    if "carolyn" in hay or "caro" in hay or chat_id > 0 or reply_to_bot:
         hay = hay.replace("carolyn", "")
         hay = hay.replace("caro", "")
         statement = chatbot.get_response(hay)
@@ -105,11 +113,11 @@ def handleother(update, typ):
     conn = sqlite3.connect(constants.db)
     content = update.message.caption
     content += update.message.text
-    chatId = update.message.chat_id
+    chat_id = update.message.chat_id
     try:
-        chatName = update.message.chat.title
+        chat_name = update.message.chat.title
     except AttributeError:
-        chatName = ''
+        chat_name = ''
     userId = update.message.from_user.id
     checkuser(update.message.from_user)
     time = update.message.date
@@ -132,7 +140,7 @@ def handleother(update, typ):
     sql += "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
     try:
         c = conn.cursor()
-        c.execute(sql, (chatId, chatName, userId, time, typ, answer, forward, hashtags, content))
+        c.execute(sql, (chat_id, chat_name, userId, time, typ, answer, forward, hashtags, content))
         c.close()
     except sqlite3.Error as e:
         print(e, " in ", sql)
