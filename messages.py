@@ -90,6 +90,7 @@ def text(bot, update, chatbot, conversation):
         user_name = update.message.from_user.first_name
         response = code.format(user_name)
         bot.sendMessage(chat_id=update.message.chat_id, text=response)
+        return
 
     # Conversation reply
     hay = content.lower()

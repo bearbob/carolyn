@@ -15,7 +15,7 @@ import eventhandler
 import constants
 from chatterbot import ChatBot
 
-sVersion = "1.10c"
+sVersion = "1.10d"
 
 conversation = []
 chatbot = ChatBot('Carolyn',
@@ -41,6 +41,7 @@ def echo(bot, update, args):
 
 
 def status(bot, update):
+    #check if message is directed to another bot
     bot.sendMessage(chat_id=update.message.chat_id, text=answer.getStatus())
 
 
