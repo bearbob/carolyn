@@ -15,6 +15,7 @@ import eventhandler
 import constants
 from chatterbot import ChatBot
 
+sVersion = "1.10b"
 
 conversation = []
 chatbot = ChatBot('Carolyn',
@@ -40,7 +41,7 @@ def echo(bot, update, args):
 
 
 def status(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id, text=random.choice(answer.getStatus()))
+    bot.sendMessage(chat_id=update.message.chat_id, text=answer.getStatus())
 
 
 def helpy(bot, update):
@@ -64,6 +65,10 @@ Besides that, you never know, just try a few commands. Who knows what might be a
     xoxoxoxo
     """
     bot.sendMessage(chat_id=update.message.chat_id, text=reply)
+
+
+def version(bot, update):
+    bot.sendMessage(chat_id=update.message.chat_id, text="Version "+sVersion)
 
 
 def main():
